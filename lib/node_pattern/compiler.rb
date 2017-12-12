@@ -282,7 +282,7 @@ class NodePattern
     end
 
     def compile_nodetype(cur_node, type)
-      "(#{cur_node} && #{cur_node}.#{type.tr('-', '_')}_type?)"
+      "(#{cur_node} && #{cur_node}.type == #{type.to_sym.inspect})"
     end
 
     def compile_param(cur_node, number, seq_head)
