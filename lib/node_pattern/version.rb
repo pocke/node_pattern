@@ -1,3 +1,3 @@
-module NodePattern
+class NodePattern
   VERSION = "0.1.0"
 end
