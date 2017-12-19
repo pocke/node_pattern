@@ -34,7 +34,7 @@ describe NodePattern::Compiler2 do
   shared_examples :invalid do
     it 'is invalid' do
       expect { described_class.new(pattern) }
-        .to raise_error(NodePattern::Invalid)
+        .to raise_error(NodePattern::Parser::ParseError)
     end
   end
 
