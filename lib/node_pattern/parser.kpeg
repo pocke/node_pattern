@@ -16,7 +16,7 @@ root = sp start sp
 
 start = &. expr:c { @ast = c  }
 
-expr = node | any | literal | or | predicate
+expr = any | literal | or | predicate | not | node
 
 exprs = expr:e1 SP exprs:e2 { [e1, *e2] } |
         expr:e { [e] }
@@ -34,6 +34,8 @@ any = '_' {
 or = '{' sp exprs:e sp '}' { s(:or, e) }
 
 predicate = < /[a-zA-Z_][a-zA-Z0-9_]*\?/ > { s(:predicate, [text.to_sym]) }
+
+not = '!' sp expr:e { s(:not, [e]) }
 
 # ----------- literals
 literal = symbol | float | int # | string

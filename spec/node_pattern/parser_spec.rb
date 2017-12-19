@@ -85,4 +85,7 @@ describe NodePattern::Parser do
 
   # predicate
   include_examples :parsable, '(send nil? _)', s(:node, 'send', s(:predicate, :nil?), s(:any))
+
+  # not
+  include_examples :parsable, '(send !nil? _)', s(:node, 'send', s(:not, s(:predicate, :nil?)), s(:any))
 end

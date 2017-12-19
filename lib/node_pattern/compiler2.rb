@@ -97,5 +97,10 @@ module NodePattern
         )
       RUBY
     end
+
+    def on_not(node, var:)
+      child = node.to_a.first
+      "(!#{compile(child, var: var)})"
+    end
   end
 end
