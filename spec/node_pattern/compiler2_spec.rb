@@ -32,7 +32,7 @@ describe NodePattern::Compiler2 do
   end
 
   shared_examples :invalid do
-    xit 'is invalid' do
+    it 'is invalid' do
       expect { described_class.new(pattern) }
         .to raise_error(NodePattern::Invalid)
     end
@@ -40,7 +40,7 @@ describe NodePattern::Compiler2 do
 
   shared_examples :single_capture do
     include AST::Sexp
-    xit 'yields captured value(s) and returns true if there is a block' do
+    it 'yields captured value(s) and returns true if there is a block' do
       expect do |probe|
         compiled = described_class.new(pattern)
         retval = compiled.match(node, *params) do |capture|
@@ -51,7 +51,7 @@ describe NodePattern::Compiler2 do
       end.to yield_with_args(captured_val)
     end
 
-    xit 'returns captured values if there is no block' do
+    it 'returns captured values if there is no block' do
       retval = described_class.new(pattern).match(node, *params)
       expect(retval).to eq captured_val
     end
@@ -59,7 +59,7 @@ describe NodePattern::Compiler2 do
 
   shared_examples :multiple_capture do
     include AST::Sexp
-    xit 'yields captured value(s) and returns true if there is a block' do
+    it 'yields captured value(s) and returns true if there is a block' do
       expect do |probe|
         compiled = described_class.new(pattern)
         retval = compiled.match(node, *params) do |*captures|
@@ -70,13 +70,13 @@ describe NodePattern::Compiler2 do
       end.to yield_with_args(captured_vals)
     end
 
-    xit 'returns captured values if there is no block' do
+    it 'returns captured values if there is no block' do
       retval = described_class.new(pattern).match(node, *params)
       expect(retval).to eq captured_vals
     end
   end
 
-  xdescribe 'bare node type' do
+  describe 'bare node type' do
     let(:pattern) { 'send' }
 
     context 'on a node with the same type' do
@@ -101,35 +101,35 @@ describe NodePattern::Compiler2 do
   end
 
   describe 'literals' do
-    xcontext 'negative integer literals' do
+    context 'negative integer literals' do
       let(:pattern) { '(int -100)' }
       let(:ruby) { '-100' }
 
       it_behaves_like :matching
     end
 
-    xcontext 'positive float literals' do
+    context 'positive float literals' do
       let(:pattern) { '(float 1.0)' }
       let(:ruby) { '1.0' }
 
       it_behaves_like :matching
     end
 
-    xcontext 'negative float literals' do
+    context 'negative float literals' do
       let(:pattern) { '(float -2.5)' }
       let(:ruby) { '-2.5' }
 
       it_behaves_like :matching
     end
 
-    xcontext 'single quoted string literals' do
+    context 'single quoted string literals' do
       let(:pattern) { '(str "foo")' }
       let(:ruby) { '"foo"' }
 
       it_behaves_like :matching
     end
 
-    xcontext 'double quoted string literals' do
+    context 'double quoted string literals' do
       let(:pattern) { '(str "foo")' }
       let(:ruby) { "'foo'" }
 
@@ -144,7 +144,7 @@ describe NodePattern::Compiler2 do
     end
   end
 
-  xdescribe 'nil' do
+  describe 'nil' do
     context 'nil literals' do
       let(:pattern) { '(nil)' }
       let(:ruby) { 'nil' }
@@ -167,7 +167,7 @@ describe NodePattern::Compiler2 do
     end
   end
 
-  xdescribe 'simple sequence' do
+  describe 'simple sequence' do
     let(:pattern) { '(send int :+ int)' }
 
     context 'on a node with the same type and matching children' do
@@ -217,7 +217,7 @@ describe NodePattern::Compiler2 do
     end
   end
 
-  xdescribe 'sequence with trailing ...' do
+  describe 'sequence with trailing ...' do
     let(:pattern) { '(send int :blah ...)' }
 
     context 'on a node with the same type and exact number of children' do
@@ -267,7 +267,7 @@ describe NodePattern::Compiler2 do
     end
   end
 
-  xdescribe 'wildcards' do
+  describe 'wildcards' do
     describe 'unnamed wildcards' do
       context 'at the root level' do
         let(:pattern) { '_' }
@@ -353,7 +353,7 @@ describe NodePattern::Compiler2 do
     end
   end
 
-  xdescribe 'sets' do
+  describe 'sets' do
     context 'at the top level' do
       context 'containing symbol literals' do
         context 'when the AST has a matching symbol' do
@@ -423,7 +423,7 @@ describe NodePattern::Compiler2 do
     end
   end
 
-  xdescribe 'captures on a wildcard' do
+  describe 'captures on a wildcard' do
     context 'at the root level' do
       let(:pattern) { '$_' }
       let(:ruby) { 'begin; raise StandardError; rescue Exception => e; end' }
@@ -457,7 +457,7 @@ describe NodePattern::Compiler2 do
     end
   end
 
-  xdescribe 'captures which also perform a match' do
+  describe 'captures which also perform a match' do
     context 'on a sequence' do
       let(:pattern) { '(send $(send _ :keys) :each)' }
       let(:ruby) { '{}.keys.each' }
@@ -507,7 +507,7 @@ describe NodePattern::Compiler2 do
     end
   end
 
-  xdescribe 'captures on ...' do
+  describe 'captures on ...' do
     context 'with no remaining pattern at the end' do
       let(:pattern) { '(send $...)' }
       let(:ruby) { '5.inc' }
@@ -581,7 +581,7 @@ describe NodePattern::Compiler2 do
     end
   end
 
-  xdescribe 'captures within sets' do
+  describe 'captures within sets' do
     context 'on simple subpatterns' do
       let(:pattern) { '{$send $int $float}' }
       let(:ruby) { '2.0' }
@@ -616,7 +616,7 @@ describe NodePattern::Compiler2 do
     end
   end
 
-  xdescribe 'negation' do
+  describe 'negation' do
     context 'on a symbol' do
       let(:pattern) { '(send _ !:abc)' }
 
@@ -732,7 +732,7 @@ describe NodePattern::Compiler2 do
     end
   end
 
-  xdescribe 'ellipsis' do
+  describe 'ellipsis' do
     context 'preceding a capture' do
       let(:pattern) { '(send array :push ... $_)' }
       let(:ruby) { '[1].push(2, 3, 4)' }
@@ -784,7 +784,7 @@ describe NodePattern::Compiler2 do
     end
   end
 
-  xdescribe 'predicates' do
+  describe 'predicates' do
     context 'in root position - matching' do
       let(:pattern) { 'frozen?' }
       let(:ruby) { '1.inc' }
@@ -862,7 +862,7 @@ describe NodePattern::Compiler2 do
     end
   end
 
-  xdescribe 'params' do
+  describe 'params' do
     context 'in root position' do
       let(:pattern) { '%1' }
       let(:params) { [s(:int, 10)] }
@@ -953,7 +953,7 @@ describe NodePattern::Compiler2 do
       it_behaves_like :matching
     end
 
-    xcontext 'param number zero' do
+    context 'param number zero' do
       # refers to original target node passed to #match
       let(:pattern) { '^(send %0 :+ (int 2))' }
       let(:ruby) { '1 + 2' }
@@ -972,7 +972,7 @@ describe NodePattern::Compiler2 do
     end
   end
 
-  xdescribe 'caret (ascend)' do
+  describe 'caret (ascend)' do
     context 'used with a node type' do
       let(:ruby) { '1.inc' }
       let(:node) { root_node.children[0] }
@@ -1037,7 +1037,7 @@ describe NodePattern::Compiler2 do
   end
 
   # FIXME: It breaks NodePattern class
-  xdescribe 'funcalls' do
+  describe 'funcalls' do
     module NodePattern
       def goodmatch(_arg1)
         true
@@ -1064,7 +1064,7 @@ describe NodePattern::Compiler2 do
     end
   end
 
-  xdescribe 'commas' do
+  describe 'commas' do
     context 'with commas randomly strewn around' do
       let(:pattern) { ',,(,send,, ,int,:+, int ), ' }
       let(:ruby) { '1 + 2' }
@@ -1073,7 +1073,7 @@ describe NodePattern::Compiler2 do
     end
   end
 
-  xdescribe 'bad syntax' do
+  describe 'bad syntax' do
     context 'with empty parentheses' do
       let(:pattern) { '()' }
 
