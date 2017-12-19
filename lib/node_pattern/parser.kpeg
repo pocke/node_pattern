@@ -1,0 +1,27 @@
+%% name = NodePattern::Parser
+
+%% {
+  attr_reader :ast
+
+  class Position
+    attr_accessor :pos, :line, :col
+    def initialize(compiler)
+      @pos = compiler.pos
+      @line = compiler.current_line
+      @col = compiler.current_column
+    end
+  end
+
+  def position
+    Position.new(self)
+  end
+}
+
+spaces = /[\s]*/
+node_type = ([A-Z]|[a-z]) /[a-zA-Z0-9_-]/+
+
+root = spaces statement spaces
+
+statement = node
+
+node = '(' spaces node_type spaces ')'

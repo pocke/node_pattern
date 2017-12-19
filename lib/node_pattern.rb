@@ -2,6 +2,7 @@ require 'ast'
 require "node_pattern/version"
 require 'node_pattern/compiler'
 require 'node_pattern/macros'
+require 'node_pattern/parser.kpeg.rb'
 
 # This class performs a pattern-matching operation on an AST node.
 #
