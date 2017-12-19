@@ -23,59 +23,60 @@ describe NodePattern::Parser do
   end
 
   # node
-  include_examples :parsable, 'send', s(:node, 'send', s(:ellipsis))
-  include_examples :parsable, '(send)', s(:node, 'send')
-  include_examples :parsable, '( foo )', s(:node, 'foo')
-  include_examples :parsable, <<-PATTERN, s(:node, 'bar')
+  include_examples :parsable, 'send', s(:node, s(:literal, :send), s(:ellipsis))
+  include_examples :parsable, '(send)', s(:node, s(:literal, :send))
+  include_examples :parsable, '( foo )', s(:node, s(:literal, :foo))
+  include_examples :parsable, <<-PATTERN, s(:node, s(:literal, :bar))
     (
       bar
     )
   PATTERN
   include_examples :parsable, '(int _)',
-                              s(:node, 'int', s(:any))
+                              s(:node, s(:literal, :int), s(:any))
   include_examples :parsable, '(send _ _ _ _)',
-                              s(:node, 'send', s(:any), s(:any), s(:any), s(:any))
+                              s(:node, s(:literal, :send), s(:any), s(:any), s(:any), s(:any))
   include_examples :parsable, '(send (int) _)',
-                              s(:node, 'send', s(:node, 'int'), s(:any))
+                              s(:node, s(:literal, :send), s(:node, s(:literal, :int)), s(:any))
+  include_examples :parsable, '(_ _ _)', s(:node, s(:any), s(:any), s(:any))
 
   # any
   include_examples :parsable, '_', s(:any)
 
   # literal
   include_examples :parsable, '(send _ :do_something)',
-                              s(:node, 'send', s(:any), s(:literal, :do_something))
+                              s(:node, s(:literal, :send), s(:any), s(:literal, :do_something))
   include_examples :xparsable, '(send _ :$foo)',
-                               s(:node, 'send', s(:any), s(:literal, :$foo))
+                               s(:node, s(:literal, :send), s(:any), s(:literal, :$foo))
   include_examples :xparsable, '(send _ :+)',
-                               s(:node, 'send', s(:any), s(:literal, :+))
+                               s(:node, s(:literal, :send), s(:any), s(:literal, :+))
 
   include_examples :parsable, '(int 1)',
-                              s(:node, 'int', s(:literal, 1))
+                              s(:node, s(:literal, :int), s(:literal, 1))
   include_examples :parsable, '(int -1)',
-                              s(:node, 'int', s(:literal, -1))
+                              s(:node, s(:literal, :int), s(:literal, -1))
   include_examples :parsable, '(int -123)',
-                              s(:node, 'int', s(:literal, -123))
+                              s(:node, s(:literal, :int), s(:literal, -123))
   include_examples :parsable, '(int 42)',
-                              s(:node, 'int', s(:literal, 42))
+                              s(:node, s(:literal, :int), s(:literal, 42))
 
   include_examples :parsable, '(float 1.0)',
-                              s(:node, 'float', s(:literal, 1.0))
+                              s(:node, s(:literal, :float), s(:literal, 1.0))
   include_examples :parsable, '(float -2.0)',
-                              s(:node, 'float', s(:literal, -2.0))
+                              s(:node, s(:literal, :float), s(:literal, -2.0))
   include_examples :parsable, '(float -123.467)',
-                              s(:node, 'float', s(:literal, -123.467))
+                              s(:node, s(:literal, :float), s(:literal, -123.467))
   include_examples :parsable, '(float 42.42)',
-                              s(:node, 'float', s(:literal, 42.42))
+                              s(:node, s(:literal, :float), s(:literal, 42.42))
 
   include_examples :parsable, '1', s(:literal, 1)
 
   # or
   include_examples :parsable, '{1 2}', s(:or, s(:literal, 1), s(:literal, 2))
   include_examples :parsable, '(send _ {:foo :bar})',
-                              s(:node, 'send', s(:any), s(:or, s(:literal, :foo), s(:literal, :bar)))
+                              s(:node, s(:literal, :send), s(:any), s(:or, s(:literal, :foo), s(:literal, :bar)))
   node = s(:or,
-           s(:node, 'send', s(:any), s(:literal, :foo)),
-           s(:node, 'send', s(:any), s(:literal, :bar))
+           s(:node, s(:literal, :send), s(:any), s(:literal, :foo)),
+           s(:node, s(:literal, :send), s(:any), s(:literal, :bar))
           )
   include_examples :parsable, <<-PATTERN, node
     {
@@ -86,16 +87,16 @@ describe NodePattern::Parser do
   include_examples :nonparsable, '{1 ...}', s(:or, s(:literal, 1), s(:literal, 2))
 
   # predicate
-  include_examples :parsable, '(send nil? _)', s(:node, 'send', s(:predicate, :nil?), s(:any))
+  include_examples :parsable, '(send nil? _)', s(:node, s(:literal, :send), s(:predicate, :nil?), s(:any))
 
   # not
-  include_examples :parsable, '(send !nil? _)', s(:node, 'send', s(:not, s(:predicate, :nil?)), s(:any))
-  include_examples :parsable, '(send !!nil? _)', s(:node, 'send', s(:not, s(:not, s(:predicate, :nil?))), s(:any))
+  include_examples :parsable, '(send !nil? _)', s(:node, s(:literal, :send), s(:not, s(:predicate, :nil?)), s(:any))
+  include_examples :parsable, '(send !!nil? _)', s(:node, s(:literal, :send), s(:not, s(:not, s(:predicate, :nil?))), s(:any))
   include_examples :nonparsable, '(send !... _)'
 
   # ellipsis
-  include_examples :parsable, '(send _ ...)', s(:node, 'send', s(:any), s(:ellipsis))
-  include_examples :parsable, '(send ... _)', s(:node, 'send', s(:ellipsis), s(:any))
-  include_examples :parsable, '(send _ ... _)', s(:node, 'send', s(:any), s(:ellipsis), s(:any))
+  include_examples :parsable, '(send _ ...)', s(:node, s(:literal, :send), s(:any), s(:ellipsis))
+  include_examples :parsable, '(send ... _)', s(:node, s(:literal, :send), s(:ellipsis), s(:any))
+  include_examples :parsable, '(send _ ... _)', s(:node, s(:literal, :send), s(:any), s(:ellipsis), s(:any))
   include_examples :nonparsable, '(send ... _ ... _)'
 end

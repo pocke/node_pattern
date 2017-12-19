@@ -45,26 +45,37 @@ module NodePattern
       type, *rest = *node
       cur = var.cur
       if rest.empty?
+        t = var.next
         return <<-RUBY.chomp
-          (#{cur}.type == #{type.inspect})
+          (
+            #{t} = #{cur}.type
+            #{compile(type, var: var)} && #{cur}.to_a.size == 0
+          )
         RUBY
       end
 
-      children = var.next
       <<-RUBY.chomp
         (
-          #{cur}.type == #{type.to_sym.inspect} && (
+          (
+            #{var.next} = #{cur}.type
+            #{compile(type, var: var)}
+          ) && (
+            #{children = var.next; nil}
             #{children} = #{cur}.to_a
-            #{children}.size == #{rest.size} &&
-              #{rest.map.with_index do |r, idx|
-                v = var.next
-                <<-RUBY.chomp
-                  (
-                    #{v} = #{children}[#{idx}]
-                    #{compile(r, var: var)}
-                  )
-                RUBY
-              end.join('&&')}
+            #{ellipsis_idx = rest.find_index {|r| r.type == :ellipsis}
+            op = ellipsis_idx ? '>=' : '=='
+            sizecheck = "#{children}.size #{op} #{rest.size}"
+            restcheck = rest.map.with_index do |r, idx|
+              next if idx == ellipsis_idx
+              v = var.next
+              <<-RUBY.chomp
+              (
+                #{v} = #{children}[#{idx}]
+                #{compile(r, var: var)}
+              )
+              RUBY
+            end.compact
+            [sizecheck, *restcheck].join('&&')}
           )
         )
       RUBY

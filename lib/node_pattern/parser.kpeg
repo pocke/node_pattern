@@ -21,12 +21,13 @@ expr = any | literal | or | predicate | not | node | ellipsis
 exprs = expr:e1 SP exprs:e2 { [e1, *e2] } |
         expr:e { [e] }
 
-node = < nodetype > { s(:node, [text, s(:ellipsis, [])]) } |
-       '(' sp < nodetype > sp ')' { s(:node, [text]) } |
+node = < nodetype > { s(:node, [s(:literal, [text.to_sym]), s(:ellipsis, [])]) } |
+       '(' sp < nodetype > sp ')' { s(:node, [s(:literal, [text.to_sym])]) } |
        '(' sp < nodetype > SP exprs_with_zero_or_one_ellipsis:e sp ')' {
-          children = [text, *e]
+          children = [s(:literal, [text.to_sym]), *e]
           s(:node, children)
-        }
+        } |
+       '(' sp exprs_with_zero_or_one_ellipsis:e sp ')' { s(:node, e) }
 
 exprs_with_zero_or_one_ellipsis = exprs:e &{ e.count {|expr| expr.type == :ellipsis} <= 1}
 
