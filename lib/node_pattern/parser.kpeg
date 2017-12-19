@@ -5,14 +5,24 @@
 }
 
 spaces = /[\s]*/
-nodetype = /[a-zA-Z][a-zA-Z0-9_-]*/:t { t }
+nodetype = /[a-zA-Z][a-zA-Z0-9_-]*/
 
 root = spaces start spaces
 
 start = &. statement:c { @ast = c  }
 
-statement = node
+statement = node | any
 
-node = '(' spaces < nodetype > spaces ')' {
-  NodePattern::Node.new(text, [])
+exprs = node:a { [a] } |
+       any:a { [a] } |
+       exprs:e1 spaces+ exprs:e2 { [*e1, *e2] }
+
+node = '(' spaces < nodetype > spaces ')' { NodePattern::Node.new(:node, [text]) } |
+       '(' spaces < nodetype > spaces exprs:e spaces ')' {
+          children = [text, *e]
+          NodePattern::Node.new(:node, children)
+        }
+
+any = '_' {
+  NodePattern::Node.new(:any, [])
 }
