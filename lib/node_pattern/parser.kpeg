@@ -2,6 +2,10 @@
 
 %% {
   attr_reader :ast
+
+  def s(type, children)
+    NodePattern::Node.new(type, children)
+  end
 }
 
 spaces = /[\s]*/
@@ -18,19 +22,19 @@ exprs = expr:e1 /[\s]+/ exprs:e2 { [e1, *e2] } |
 
 expr = node | any | literal
 
-node = '(' spaces < nodetype > spaces ')' { NodePattern::Node.new(:node, [text]) } |
+node = '(' spaces < nodetype > spaces ')' { s(:node, [text]) } |
        '(' spaces < nodetype > spaces exprs:e spaces ')' {
           children = [text, *e]
-          NodePattern::Node.new(:node, children)
+          s(:node, children)
         }
 
 any = '_' {
-  NodePattern::Node.new(:any, [])
+  s(:any, [])
 }
 
 literal = symbol # | int | float | string
 
-symbol = ':' < sym_text > { NodePattern::Node.new(:literal, [text.to_sym]) }
+symbol = ':' < sym_text > { s(:literal, [text.to_sym]) }
 
 # TODO
 sym_text = /\w+/
