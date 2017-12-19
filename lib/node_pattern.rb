@@ -1,6 +1,7 @@
 require 'ast'
 require "node_pattern/version"
 require 'node_pattern/compiler'
+require 'node_pattern/compiler2'
 require 'node_pattern/macros'
 require 'node_pattern/node'
 require 'node_pattern/parser.kpeg.rb'
