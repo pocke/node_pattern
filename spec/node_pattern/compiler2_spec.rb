@@ -100,36 +100,36 @@ describe NodePattern::Compiler2 do
     end
   end
 
-  xdescribe 'literals' do
-    context 'negative integer literals' do
+  describe 'literals' do
+    xcontext 'negative integer literals' do
       let(:pattern) { '(int -100)' }
       let(:ruby) { '-100' }
 
       it_behaves_like :matching
     end
 
-    context 'positive float literals' do
+    xcontext 'positive float literals' do
       let(:pattern) { '(float 1.0)' }
       let(:ruby) { '1.0' }
 
       it_behaves_like :matching
     end
 
-    context 'negative float literals' do
+    xcontext 'negative float literals' do
       let(:pattern) { '(float -2.5)' }
       let(:ruby) { '-2.5' }
 
       it_behaves_like :matching
     end
 
-    context 'single quoted string literals' do
+    xcontext 'single quoted string literals' do
       let(:pattern) { '(str "foo")' }
       let(:ruby) { '"foo"' }
 
       it_behaves_like :matching
     end
 
-    context 'double quoted string literals' do
+    xcontext 'double quoted string literals' do
       let(:pattern) { '(str "foo")' }
       let(:ruby) { "'foo'" }
 

@@ -52,7 +52,7 @@ module NodePattern
 
       children = var.next
       <<~RUBY
-        #{cur}.type == #{type.inspect} && (
+        #{cur}.type == #{type.to_sym.inspect} && (
           #{children} = #{cur}.to_a
           #{children}.size == #{rest.size} &&
             #{rest.map.with_index do |r, idx|
@@ -70,6 +70,11 @@ module NodePattern
 
     def on_any(node, var:)
       'true'
+    end
+
+    def on_literal(node, var:)
+      literal = node.to_a.first
+      "#{var.cur} == #{literal.inspect}"
     end
   end
 end
