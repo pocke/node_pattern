@@ -88,5 +88,14 @@ module NodePattern
         )
       RUBY
     end
+
+    def on_predicate(node, var:)
+      method_name = node.to_a.first
+      <<-RUBY.chomp
+        (
+          #{var.cur}.#{method_name}
+        )
+      RUBY
+    end
   end
 end

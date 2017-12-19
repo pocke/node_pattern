@@ -82,4 +82,7 @@ describe NodePattern::Parser do
       (send _ :bar)
     }
   PATTERN
+
+  # predicate
+  include_examples :parsable, '(send nil? _)', s(:node, 'send', s(:predicate, :nil?), s(:any))
 end
