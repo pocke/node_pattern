@@ -16,7 +16,7 @@ statement = node | any
 exprs = expr:e1 /[\s]+/ exprs:e2 { [e1, *e2] } |
         expr:e { [e] }
 
-expr = node | any
+expr = node | any | literal
 
 node = '(' spaces < nodetype > spaces ')' { NodePattern::Node.new(:node, [text]) } |
        '(' spaces < nodetype > spaces exprs:e spaces ')' {
@@ -27,3 +27,10 @@ node = '(' spaces < nodetype > spaces ')' { NodePattern::Node.new(:node, [text])
 any = '_' {
   NodePattern::Node.new(:any, [])
 }
+
+literal = symbol # | int | float | string
+
+symbol = ':' < sym_text > { NodePattern::Node.new(:literal, [text.to_sym]) }
+
+# TODO
+sym_text = /\w+/

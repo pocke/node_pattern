@@ -41,6 +41,6 @@ describe NodePattern::Parser do
   include_examples :parsable, '_', s(:any)
 
   # literal
-  include_examples :xparsable, '(send _ :do_something)',
+  include_examples :parsable, '(send _ :do_something)',
                                s(:node, 'send', s(:any), s(:literal, :do_something))
 end
