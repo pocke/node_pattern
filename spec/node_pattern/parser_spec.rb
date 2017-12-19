@@ -23,6 +23,7 @@ describe NodePattern::Parser do
   end
 
   # node
+  include_examples :xparsable, 'send', s(:node, 'send', s(:rest))
   include_examples :parsable, '(send)', s(:node, 'send')
   include_examples :parsable, '( foo )', s(:node, 'foo')
   include_examples :parsable, <<-PATTERN, s(:node, 'bar')
