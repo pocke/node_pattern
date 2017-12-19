@@ -10,7 +10,7 @@ describe NodePattern::Parser do
   end
 
   shared_examples :nonparsable do |pattern|
-    it 'is parsable' do
+    it "#{pattern.gsub("\n", '\n')} is not parsable" do
       parser = NodePattern::Parser.new(pattern)
       raise 'It can parse!' if parser.parse
     end
@@ -23,7 +23,7 @@ describe NodePattern::Parser do
   end
 
   # node
-  include_examples :xparsable, 'send', s(:node, 'send', s(:rest))
+  include_examples :parsable, 'send', s(:node, 'send', s(:ellipsis))
   include_examples :parsable, '(send)', s(:node, 'send')
   include_examples :parsable, '( foo )', s(:node, 'foo')
   include_examples :parsable, <<-PATTERN, s(:node, 'bar')
@@ -83,10 +83,19 @@ describe NodePattern::Parser do
       (send _ :bar)
     }
   PATTERN
+  include_examples :nonparsable, '{1 ...}', s(:or, s(:literal, 1), s(:literal, 2))
 
   # predicate
   include_examples :parsable, '(send nil? _)', s(:node, 'send', s(:predicate, :nil?), s(:any))
 
   # not
   include_examples :parsable, '(send !nil? _)', s(:node, 'send', s(:not, s(:predicate, :nil?)), s(:any))
+  include_examples :parsable, '(send !!nil? _)', s(:node, 'send', s(:not, s(:not, s(:predicate, :nil?))), s(:any))
+  include_examples :nonparsable, '(send !... _)'
+
+  # ellipsis
+  include_examples :parsable, '(send _ ...)', s(:node, 'send', s(:any), s(:ellipsis))
+  include_examples :parsable, '(send ... _)', s(:node, 'send', s(:ellipsis), s(:any))
+  include_examples :parsable, '(send _ ... _)', s(:node, 'send', s(:any), s(:ellipsis), s(:any))
+  include_examples :nonparsable, '(send ... _ ... _)'
 end

@@ -16,26 +16,35 @@ root = sp start sp
 
 start = &. expr:c { @ast = c  }
 
-expr = any | literal | or | predicate | not | node
+expr = any | literal | or | predicate | not | node | ellipsis
 
 exprs = expr:e1 SP exprs:e2 { [e1, *e2] } |
         expr:e { [e] }
 
-node = '(' sp < nodetype > sp ')' { s(:node, [text]) } |
-       '(' sp < nodetype > SP exprs:e sp ')' {
+node = < nodetype > { s(:node, [text, s(:ellipsis, [])]) } |
+       '(' sp < nodetype > sp ')' { s(:node, [text]) } |
+       '(' sp < nodetype > SP exprs_with_zero_or_one_ellipsis:e sp ')' {
           children = [text, *e]
           s(:node, children)
         }
+
+exprs_with_zero_or_one_ellipsis = exprs:e &{ e.count {|expr| expr.type == :ellipsis} <= 1}
 
 any = '_' {
   s(:any, [])
 }
 
-or = '{' sp exprs:e sp '}' { s(:or, e) }
+or = '{' sp exprs_without_ellipsis:e sp '}' { s(:or, e) }
+
+exprs_without_ellipsis = exprs:e &{ e.none?{|expr| expr.type == :ellipsis}}
 
 predicate = < /[a-zA-Z_][a-zA-Z0-9_]*\?/ > { s(:predicate, [text.to_sym]) }
 
-not = '!' sp expr:e { s(:not, [e]) }
+not = '!' sp expr_without_ellipsis:e { s(:not, [e]) }
+
+expr_without_ellipsis = expr:e &{ e.type != :ellipsis }
+
+ellipsis = '...' { s(:ellipsis, []) }
 
 # ----------- literals
 literal = symbol | float | int # | string
