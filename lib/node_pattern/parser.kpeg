@@ -33,9 +33,10 @@ any = '_' {
   s(:any, [])
 }
 
-literal = symbol # | int | float | string
+literal = symbol | int # | float | string
 
 symbol = ':' < sym_text > { s(:literal, [text.to_sym]) }
+int = < '-'? [1-9] [0-9]* > { s(:literal, [text.to_i]) }
 
 # TODO
 sym_text = /\w+/
