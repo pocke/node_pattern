@@ -6,3 +6,7 @@ RSpec::Core::RakeTask.new(:spec) do |spec|
 end
 
 task :default => :spec
+
+task :kpeg do
+  sh "kpeg -s -f lib/node_pattern/parser.kpeg"
+end
