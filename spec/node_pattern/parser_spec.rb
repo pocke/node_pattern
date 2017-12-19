@@ -1,8 +1,11 @@
 describe NodePattern::Parser do
-  shared_examples :parsable do |pattern|
+  extend AST::Sexp
+
+  shared_examples :parsable do |pattern, expected|
     it 'is parsable' do
       parser = NodePattern::Parser.new(pattern)
       parser.raise_error unless parser.parse
+      expect(parser.ast).to eq expected
     end
   end
 
@@ -20,9 +23,9 @@ describe NodePattern::Parser do
     end
   end
 
-  include_examples :parsable, '(send)'
-  include_examples :parsable, '( foo )'
-  include_examples :parsable, <<-PATTERN
+  include_examples :parsable, '(send)', s(:send)
+  include_examples :parsable, '( foo )', s(:foo)
+  include_examples :parsable, <<-PATTERN, s(:bar)
     (
       bar
     )

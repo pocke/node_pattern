@@ -1029,8 +1029,8 @@ describe NodePattern do
   end
 
   # FIXME: It breaks NodePattern class
-  describe 'funcalls' do
-    class NodePattern
+  xdescribe 'funcalls' do
+    module NodePattern
       def goodmatch(_arg1)
         true
       end

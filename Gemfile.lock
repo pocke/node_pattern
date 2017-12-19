@@ -37,7 +37,7 @@ PLATFORMS
 
 DEPENDENCIES
   bundler (~> 1.16)
-  kpeg (>= 1.0.0)
+  kpeg (>= 1.1.0)
   node_pattern!
   parser (>= 2.4.0.2)
   pry
