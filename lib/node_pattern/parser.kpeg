@@ -8,22 +8,23 @@
   end
 }
 
-spaces = /[\s]*/
+sp = /[\s]*/
+SP = /[\s]+/
 nodetype = /[a-zA-Z][a-zA-Z0-9_-]*/
 
-root = spaces start spaces
+root = sp start sp
 
 start = &. statement:c { @ast = c  }
 
 statement = node | any
 
-exprs = expr:e1 /[\s]+/ exprs:e2 { [e1, *e2] } |
+exprs = expr:e1 SP exprs:e2 { [e1, *e2] } |
         expr:e { [e] }
 
 expr = node | any | literal
 
-node = '(' spaces < nodetype > spaces ')' { s(:node, [text]) } |
-       '(' spaces < nodetype > spaces exprs:e spaces ')' {
+node = '(' sp < nodetype > sp ')' { s(:node, [text]) } |
+       '(' sp < nodetype > SP exprs:e sp ')' {
           children = [text, *e]
           s(:node, children)
         }
