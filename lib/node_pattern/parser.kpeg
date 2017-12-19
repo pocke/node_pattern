@@ -16,7 +16,7 @@ root = sp start sp
 
 start = &. expr:c { @ast = c  }
 
-expr = node | any | literal
+expr = node | any | literal | or
 
 exprs = expr:e1 SP exprs:e2 { [e1, *e2] } |
         expr:e { [e] }
@@ -30,6 +30,8 @@ node = '(' sp < nodetype > sp ')' { s(:node, [text]) } |
 any = '_' {
   s(:any, [])
 }
+
+or = '{' sp exprs:e sp '}' { s(:or, e) }
 
 # ----------- literals
 literal = symbol | float | int # | string

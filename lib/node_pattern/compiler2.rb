@@ -34,7 +34,7 @@ module NodePattern
       ok = parser.parse
       parser.raise_error unless ok
       ast = parser.ast
-      @match_code = compile(ast, var: Variable.new)
+      @match_code = compile(ast, var: Variable.new) + '|| nil'
     end
 
     def compile(node, var:)
@@ -45,25 +45,27 @@ module NodePattern
       type, *rest = *node
       cur = var.cur
       if rest.empty?
-        return <<~RUBY
-          #{cur}.type == #{type.inspect}
+        return <<-RUBY.chomp
+          (#{cur}.type == #{type.inspect})
         RUBY
       end
 
       children = var.next
-      <<~RUBY
-        #{cur}.type == #{type.to_sym.inspect} && (
-          #{children} = #{cur}.to_a
-          #{children}.size == #{rest.size} &&
-            #{rest.map.with_index do |r, idx|
-              v = var.next
-              <<~RUBY
-                (
-                  #{v} = #{children}[#{idx}]
-                  #{compile(r, var: var)}
-                )
-              RUBY
-            end.join('&&')}
+      <<-RUBY.chomp
+        (
+          #{cur}.type == #{type.to_sym.inspect} && (
+            #{children} = #{cur}.to_a
+            #{children}.size == #{rest.size} &&
+              #{rest.map.with_index do |r, idx|
+                v = var.next
+                <<-RUBY.chomp
+                  (
+                    #{v} = #{children}[#{idx}]
+                    #{compile(r, var: var)}
+                  )
+                RUBY
+              end.join('&&')}
+          )
         )
       RUBY
     end
@@ -74,7 +76,17 @@ module NodePattern
 
     def on_literal(node, var:)
       literal = node.to_a.first
-      "#{var.cur} == #{literal.inspect}"
+      "(#{var.cur} == #{literal.inspect})"
+    end
+
+    def on_or(node, var:)
+      <<-RUBY.chomp
+        (
+          #{node.to_a.map do |n|
+            compile(n, var: var)
+          end.join('||')}
+        )
+      RUBY
     end
   end
 end

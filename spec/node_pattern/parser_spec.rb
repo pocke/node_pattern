@@ -67,4 +67,19 @@ describe NodePattern::Parser do
                               s(:node, 'float', s(:literal, 42.42))
 
   include_examples :parsable, '1', s(:literal, 1)
+
+  # or
+  include_examples :parsable, '{1 2}', s(:or, s(:literal, 1), s(:literal, 2))
+  include_examples :parsable, '(send _ {:foo :bar})',
+                              s(:node, 'send', s(:any), s(:or, s(:literal, :foo), s(:literal, :bar)))
+  node = s(:or,
+           s(:node, 'send', s(:any), s(:literal, :foo)),
+           s(:node, 'send', s(:any), s(:literal, :bar))
+          )
+  include_examples :parsable, <<-PATTERN, node
+    {
+      (send _ :foo)
+      (send _ :bar)
+    }
+  PATTERN
 end
