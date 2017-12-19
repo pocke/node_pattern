@@ -65,4 +65,6 @@ describe NodePattern::Parser do
                               s(:node, 'float', s(:literal, -123.467))
   include_examples :parsable, '(float 42.42)',
                               s(:node, 'float', s(:literal, 42.42))
+
+  include_examples :parsable, '1', s(:literal, 1)
 end

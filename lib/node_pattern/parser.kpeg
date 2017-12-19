@@ -14,14 +14,12 @@ nodetype = /[a-zA-Z][a-zA-Z0-9_-]*/
 
 root = sp start sp
 
-start = &. statement:c { @ast = c  }
+start = &. expr:c { @ast = c  }
 
-statement = node | any
+expr = node | any | literal
 
 exprs = expr:e1 SP exprs:e2 { [e1, *e2] } |
         expr:e { [e] }
-
-expr = node | any | literal
 
 node = '(' sp < nodetype > sp ')' { s(:node, [text]) } |
        '(' sp < nodetype > SP exprs:e sp ')' {
@@ -33,6 +31,7 @@ any = '_' {
   s(:any, [])
 }
 
+# ----------- literals
 literal = symbol | float | int # | string
 
 symbol = ':' < sym_text > { s(:literal, [text.to_sym]) }
