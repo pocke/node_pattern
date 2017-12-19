@@ -34,6 +34,8 @@ describe NodePattern::Parser do
                               s(:node, 'int', s(:any))
   include_examples :parsable, '(send _ _ _ _)',
                               s(:node, 'send', s(:any), s(:any), s(:any), s(:any))
+  include_examples :parsable, '(send (int) _)',
+                              s(:node, 'send', s(:node, 'int'), s(:any))
 
   # any
   include_examples :parsable, '_', s(:any)
