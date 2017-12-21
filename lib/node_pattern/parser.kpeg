@@ -16,7 +16,7 @@ root = sp start sp
 
 start = &. expr:c { @ast = c  }
 
-expr = any | literal | or | and | predicate | not | node | ellipsis
+expr = any | literal | or | and | predicate | not | node | ellipsis | capture
 
 exprs = expr:e1 SP exprs:e2 { [e1, *e2] } |
         expr:e { [e] }
@@ -29,7 +29,7 @@ node = < nodetype > { s(:node, [s(:literal, [text.to_sym]), s(:ellipsis, [])]) }
         } |
        '(' sp exprs_with_zero_or_one_ellipsis:e sp ')' { s(:node, e) }
 
-exprs_with_zero_or_one_ellipsis = exprs:e &{ e.count {|expr| expr.type == :ellipsis} <= 1}
+exprs_with_zero_or_one_ellipsis = exprs:e &{ e.count(&:ellipsis?) <= 1}
 
 any = '_' {
   s(:any, [])
@@ -37,15 +37,16 @@ any = '_' {
 
 or = '{' sp exprs_without_ellipsis:e sp '}' { s(:or, e) }
 
-and = '[' sp exprs_without_ellipsis:e sp ']' { s(:and, e) }
+and = '[' sp &exprs_without_capture exprs_without_ellipsis:e sp ']' { s(:and, e) }
 
-exprs_without_ellipsis = exprs:e &{ e.none?{|expr| expr.type == :ellipsis}}
+exprs_without_ellipsis = exprs:e &{ e.none?(&:ellipsis?) }
+exprs_without_capture = exprs:e &{ e.none?(&:capture?) }
 
 predicate = < /[a-zA-Z_][a-zA-Z0-9_]*\?/ > { s(:predicate, [text.to_sym]) }
 
 not = '!' sp expr_without_ellipsis:e { s(:not, [e]) }
 
-expr_without_ellipsis = expr:e &{ e.type != :ellipsis }
+expr_without_ellipsis = expr:e &{ !e.ellipsis? }
 
 ellipsis = '...' { s(:ellipsis, []) }
 
@@ -62,3 +63,6 @@ sym_text = /\w+[?!]?/ | /\$\w+/ | /@@?\w+/ |
            '=~' | '==' | '<=>' | '<=' | '>=' | '!=' |
            '**'
 
+capture = '$' &not_capture expr:e { s(:capture, [e]) }
+
+not_capture = expr:e &{ !e.capture? }

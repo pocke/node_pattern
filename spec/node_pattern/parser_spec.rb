@@ -120,4 +120,13 @@ describe NodePattern::Parser do
   include_examples :parsable, '(send ... _)', s(:node, s(:literal, :send), s(:ellipsis), s(:any))
   include_examples :parsable, '(send _ ... _)', s(:node, s(:literal, :send), s(:any), s(:ellipsis), s(:any))
   include_examples :nonparsable, '(send ... _ ... _)'
+
+  # capture
+  include_examples :parsable, '$(send _ _)', s(:capture, s(:node, s(:literal, :send), s(:any), s(:any)))
+  include_examples :parsable, '(send $_ $_)', s(:node, s(:literal, :send), s(:capture, s(:any)), s(:capture, s(:any)))
+  include_examples :nonparsable, '[$foo $bar]'
+  include_examples :nonparsable, '[$foo bar]'
+  include_examples :nonparsable, '[foo $bar]'
+  include_examples :parsable, '$[:foo :bar]', s(:capture, s(:and, s(:literal, :foo), s(:literal, :bar)))
+  include_examples :nonparsable, '$$foo'
 end
