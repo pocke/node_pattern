@@ -94,8 +94,18 @@ module NodePattern
       <<-RUBY.chomp
         (
           #{node.to_a.map do |n|
-            compile(n, var: var)
+            compile(n, var: var.branch)
           end.join('||')}
+        )
+      RUBY
+    end
+
+    def on_and(node, var:)
+      <<-RUBY.chomp
+        (
+          #{node.to_a.map do |n|
+            compile(n, var: var.branch)
+          end.join('&&')}
         )
       RUBY
     end

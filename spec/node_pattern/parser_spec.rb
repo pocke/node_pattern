@@ -88,7 +88,24 @@ describe NodePattern::Parser do
       (send _ :bar)
     }
   PATTERN
-  include_examples :nonparsable, '{1 ...}', s(:or, s(:literal, 1), s(:literal, 2))
+  include_examples :nonparsable, '{1 ...}'
+
+  # and
+  include_examples :parsable, '[1 2]', s(:and, s(:literal, 1), s(:literal, 2))
+  include_examples :parsable, '(send _ [foo? bar?])',
+                              s(:node, s(:literal, :send), s(:any), s(:and, s(:predicate, :foo?), s(:predicate, :bar?)))
+  node = s(:and,
+           s(:node, s(:literal, :send), s(:any), s(:predicate, :foo?)),
+           s(:node, s(:literal, :send), s(:any), s(:predicate, :bar?))
+          )
+  include_examples :parsable, <<-PATTERN, node
+    [
+      (send _ foo?)
+      (send _ bar?)
+    ]
+  PATTERN
+  include_examples :nonparsable, '[1 ...]'
+
 
   # predicate
   include_examples :parsable, '(send nil? _)', s(:node, s(:literal, :send), s(:predicate, :nil?), s(:any))

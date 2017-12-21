@@ -16,7 +16,7 @@ root = sp start sp
 
 start = &. expr:c { @ast = c  }
 
-expr = any | literal | or | predicate | not | node | ellipsis
+expr = any | literal | or | and | predicate | not | node | ellipsis
 
 exprs = expr:e1 SP exprs:e2 { [e1, *e2] } |
         expr:e { [e] }
@@ -36,6 +36,8 @@ any = '_' {
 }
 
 or = '{' sp exprs_without_ellipsis:e sp '}' { s(:or, e) }
+
+and = '[' sp exprs_without_ellipsis:e sp ']' { s(:and, e) }
 
 exprs_without_ellipsis = exprs:e &{ e.none?{|expr| expr.type == :ellipsis}}
 
