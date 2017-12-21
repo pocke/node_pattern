@@ -1,0 +1,68 @@
+%% name = NodePattern::Parser
+
+%% {
+  attr_reader :ast
+
+  def s(type, children)
+    NodePattern::Node.new(type, children)
+  end
+}
+
+sp = /[\s]*/
+SP = /[\s]+/
+nodetype = /[a-zA-Z][a-zA-Z0-9_-]*/
+
+root = sp start sp
+
+start = &. expr:c { @ast = c  }
+
+expr = any | literal | or | and | predicate | not | node | ellipsis | capture
+
+exprs = expr:e1 SP exprs:e2 { [e1, *e2] } |
+        expr:e { [e] }
+
+node = < nodetype > { s(:node, [s(:literal, [text.to_sym]), s(:ellipsis, [])]) } |
+       '(' sp < nodetype > sp ')' { s(:node, [s(:literal, [text.to_sym])]) } |
+       '(' sp < nodetype > SP exprs_with_zero_or_one_ellipsis:e sp ')' {
+          children = [s(:literal, [text.to_sym]), *e]
+          s(:node, children)
+        } |
+       '(' sp exprs_with_zero_or_one_ellipsis:e sp ')' { s(:node, e) }
+
+exprs_with_zero_or_one_ellipsis = exprs:e &{ e.count(&:ellipsis?) <= 1}
+
+any = '_' {
+  s(:any, [])
+}
+
+or = '{' sp exprs_without_ellipsis:e sp '}' { s(:or, e) }
+
+and = '[' sp &exprs_without_capture exprs_without_ellipsis:e sp ']' { s(:and, e) }
+
+exprs_without_ellipsis = exprs:e &{ e.none?(&:ellipsis?) }
+exprs_without_capture = exprs:e &{ e.none?(&:capture?) }
+
+predicate = < /[a-zA-Z_][a-zA-Z0-9_]*\?/ > { s(:predicate, [text.to_sym]) }
+
+not = '!' sp expr_without_ellipsis:e { s(:not, [e]) }
+
+expr_without_ellipsis = expr:e &{ !e.ellipsis? }
+
+ellipsis = '...' { s(:ellipsis, []) }
+
+# ----------- literals
+literal = symbol | float | int # | string
+
+symbol = ':' < sym_text > { s(:literal, [text.to_sym]) }
+int = < '-'? [1-9] [0-9]* > { s(:literal, [text.to_i]) }
+float = < '-'? [1-9] [0-9]* '.' [0-9]+ > { s(:literal, [text.to_f]) }
+
+sym_text = /\w+[?!]?/ | /\$\w+/ | /@@?\w+/ |
+           /[+*\/!<>~|%^-`]/ |
+           '[]' | '[]=' |
+           '=~' | '==' | '<=>' | '<=' | '>=' | '!=' |
+           '**'
+
+capture = '$' &not_capture expr:e { s(:capture, [e]) }
+
+not_capture = expr:e &{ !e.capture? }

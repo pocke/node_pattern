@@ -15,7 +15,7 @@ Gem::Specification.new do |spec|
 
   spec.files         = `git ls-files -z`.split("\x0").reject do |f|
     f.match(%r{^(test|spec|features)/})
-  end
+  end + ['lib/node_pattern/parser.kpeg.rb']
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
@@ -25,5 +25,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rspec', '~> 3.7'
   spec.add_development_dependency 'parser', '>= 2.4.0.2'
   spec.add_development_dependency 'pry'
+  spec.add_development_dependency 'kpeg', '>= 1.1.0'
   spec.add_runtime_dependency 'ast', '>= 2.3.0'
 end

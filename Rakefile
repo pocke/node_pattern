@@ -5,4 +5,8 @@ RSpec::Core::RakeTask.new(:spec) do |spec|
   spec.pattern = FileList['spec/**/*_spec.rb']
 end
 
-task :default => :spec
+task :default => %i[kpeg spec]
+
+task :kpeg do
+  sh "kpeg -s -f lib/node_pattern/parser.kpeg"
+end

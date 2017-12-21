@@ -2,7 +2,7 @@
 
 require 'parser/current'
 
-describe NodePattern do
+describe NodePattern::Compiler2 do
   let(:root_node) do
     Parser::CurrentRuby.parse(ruby)
   end
@@ -13,20 +13,28 @@ describe NodePattern do
   shared_examples :matching do
     include AST::Sexp
     it 'matches' do
-      expect(described_class.new(pattern).match(node, *params)).to be true
+      compiler = NodePattern::Compiler2.new(pattern)
+      match = lambda do |var0|
+        eval compiler.match_code
+      end
+      expect(match.call(node, *params)).to be true
     end
   end
 
   shared_examples :nonmatching do
     it "doesn't match" do
-      expect(described_class.new(pattern).match(node, *params).nil?).to be(true)
+      compiler = NodePattern::Compiler2.new(pattern)
+      match = lambda do |var0|
+        eval compiler.match_code
+      end
+      expect(match.call(node, *params).nil?).to be(true)
     end
   end
 
   shared_examples :invalid do
     it 'is invalid' do
       expect { described_class.new(pattern) }
-        .to raise_error(NodePattern::Invalid)
+        .to raise_error(NodePattern::Parser::ParseError)
     end
   end
 
@@ -945,7 +953,7 @@ describe NodePattern do
       it_behaves_like :matching
     end
 
-    xcontext 'param number zero' do
+    context 'param number zero' do
       # refers to original target node passed to #match
       let(:pattern) { '^(send %0 :+ (int 2))' }
       let(:ruby) { '1 + 2' }
@@ -964,7 +972,7 @@ describe NodePattern do
     end
   end
 
-  xdescribe 'caret (ascend)' do
+  describe 'caret (ascend)' do
     context 'used with a node type' do
       let(:ruby) { '1.inc' }
       let(:node) { root_node.children[0] }
@@ -1029,7 +1037,7 @@ describe NodePattern do
   end
 
   # FIXME: It breaks NodePattern class
-  xdescribe 'funcalls' do
+  describe 'funcalls' do
     module NodePattern
       def goodmatch(_arg1)
         true

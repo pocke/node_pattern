@@ -1,7 +1,10 @@
 require 'ast'
 require "node_pattern/version"
 require 'node_pattern/compiler'
+require 'node_pattern/compiler2'
 require 'node_pattern/macros'
+require 'node_pattern/node'
+require 'node_pattern/parser.kpeg.rb'
 
 # This class performs a pattern-matching operation on an AST node.
 #
@@ -90,14 +93,17 @@ require 'node_pattern/macros'
 # in a certain place in the AST, you can do it like this: `[!nil <pattern>]`
 #
 # The compiler code is very simple; don't be afraid to read through it!
-class NodePattern
+module NodePattern
   # @private
   Invalid = Class.new(StandardError)
 
-  def initialize(str)
+  # FIXME
+  def self.new(str)
     compiler = Compiler.new(str)
     src = "def match(node0#{compiler.emit_trailing_params});" \
           "#{compiler.emit_method_code}end"
-    instance_eval(src)
+    Object.new.tap do |obj|
+      obj.instance_eval(src)
+    end
   end
 end

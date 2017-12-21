@@ -6,3 +6,4 @@
 /pkg/
 /spec/reports/
 /tmp/
+/lib/node_pattern/parser.kpeg.rb

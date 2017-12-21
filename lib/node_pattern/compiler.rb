@@ -1,4 +1,4 @@
-class NodePattern
+module NodePattern
   # @private
   # Builds Ruby code which implements a pattern
   class Compiler

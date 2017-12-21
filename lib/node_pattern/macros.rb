@@ -1,4 +1,4 @@
-class NodePattern
+module NodePattern
   # Helpers for defining methods based on a pattern string
   module Macros
     # Define a method which applies a pattern to an AST node
