@@ -1,7 +1,7 @@
 module NodePattern
   class Node < AST::Node
     def ellipsis?
-      type == :ellipsis
+      type == :ellipsis || (capture? && children.first.ellipsis?)
     end
 
     def capture?
